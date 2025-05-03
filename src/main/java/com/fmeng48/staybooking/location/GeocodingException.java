@@ -1,10 +1,11 @@
 package com.fmeng48.staybooking.location;
 
-
 public class GeocodingException extends RuntimeException {
+    public GeocodingException(String message) {
+        super(message);
+    }
 
-
-    public GeocodingException() {
-        super("Failed to look up address");
+    public GeocodingException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

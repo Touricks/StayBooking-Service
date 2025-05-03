@@ -38,6 +38,7 @@ public class AppConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                                .requestMatchers("/api/geocoding/**").permitAll()
                                 .requestMatchers("/bookings/**").hasAuthority("ROLE_GUEST")
                                 .requestMatchers("/listings/search").hasAuthority("ROLE_GUEST")
                                 .requestMatchers("/listings/**").hasAuthority("ROLE_HOST")
