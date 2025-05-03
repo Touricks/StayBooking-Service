@@ -40,6 +40,7 @@ out/
 ### Application Specific ###
 # Credentials and Secrets
 **/credentials.json
+src/main/resources/credentials.json
 **/service-account.json
 **/application-*.yml
 !**/application.yml
