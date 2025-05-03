@@ -55,14 +55,41 @@ public class ListingService {
             int guestNumber,
             List<MultipartFile> images)
     {
-        List<String> uploadedUrls = images.parallelStream()
-                .filter(image -> !image.isEmpty())
-                .map(imageStorageService::upload)
-                .toList();
+        // Input validation
+        if (name == null || name.trim().isEmpty()) {
+            throw new InvalidListingException("Listing name cannot be empty");
+        }
+        if (address == null || address.trim().isEmpty()) {
+            throw new InvalidListingException("Address cannot be empty");
+        }
+        if (description == null || description.trim().isEmpty()) {
+            throw new InvalidListingException("Description cannot be empty");
+        }
+        if (guestNumber <= 0) {
+            throw new InvalidListingException("Guest number must be positive");
+        }
+        if (images == null || images.isEmpty()) {
+            throw new InvalidListingException("At least one image is required");
+        }
 
+        // Image upload with exception handling
+        List<String> uploadedUrls;
+        try {
+            uploadedUrls = images.parallelStream()
+                    .filter(image -> !image.isEmpty())
+                    .map(imageStorageService::upload)
+                    .toList();
+        } catch (Exception e) {
+            throw new InvalidListingException("Failed to upload images: " + e.getMessage());
+        }
 
-        GeoPoint geoPoint = geocodingService.getGeoPoint(address);
-
+        // Geocoding with exception handling
+        GeoPoint geoPoint;
+        try {
+            geoPoint = geocodingService.getGeoPoint(address);
+        } catch (Exception e) {
+            throw new InvalidListingException("Failed to geocode address: " + e.getMessage());
+        }
 
         GeometryFactory geometryFactory = new GeometryFactory();
 
@@ -76,7 +103,13 @@ public class ListingService {
                 uploadedUrls,
                 geometryFactory.createPoint(new Coordinate(geoPoint.lon(), geoPoint.lat()))
         );
-        listingRepository.save(newHouse);
+
+        // Database operation with exception handling
+        try {
+            listingRepository.save(newHouse);
+        } catch (Exception e) {
+            throw new InvalidListingException("Failed to save listing: " + e.getMessage());
+        }
     }
 
     public void deleteListing(long hostId, long listingId) {
